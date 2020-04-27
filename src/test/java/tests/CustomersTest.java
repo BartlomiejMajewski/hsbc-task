@@ -56,6 +56,7 @@ public class CustomersTest {
     }
 
     private void checkEmptyTableForSearchInput(Table table, Search search, String searchInput) {
+        search.clearSearchInput();
         search.sendToSearchInput(searchInput);
         assertIterableEquals(emptyList(), table.getTableValues(), "Table should be empty for search: " + searchInput);
     }
@@ -65,7 +66,6 @@ public class CustomersTest {
         Table table = new Table(driver, wait);
 
         List<String> expectedHeadersNamesList = asList("Id", "Name", "Email", "City");
-
         String expectedTableFooterText = "Showing 3 of 3 customers";
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(table.getTableContainerLocator()));
@@ -96,11 +96,15 @@ public class CustomersTest {
         assertTrue(search.isClearButtonDisplayed(), "Clear button should be displayed.");
 
         search.clickMatchCaseCheckbox();
-        assertIterableEquals(emptyList(), table.getTableValues(), "Invalid search result for: ala");
+        assertIterableEquals(emptyList(), table.getTableValues(), "Invalid search result with match case for: ala");
         assertEquals(tableFooterInvalidAla, table.getTableFooterText(), "Table footer text is invalid for ala search with match case.");
         search.clearSearchInput();
         search.sendToSearchInput("Ala");
         assertIterableEquals(expectedSearchResults, table.getTableValues(), "Invalid search result with March Case for: Ala");
+
+        checkEmptyTableForSearchInput(table, search, "office@alabaster.com");
+        checkEmptyTableForSearchInput(table, search, "Melbourne");
+        checkEmptyTableForSearchInput(table, search, "1");
 
         search.clickClearButton();
         checkTableDefaultData(table);
@@ -121,30 +125,28 @@ public class CustomersTest {
         assertEquals("Id", search.getColumnSelectCurrentValue(), "Column select should equals: Name.");
         search.sendToSearchInput("2");
         assertIterableEquals(expectedRow2Values, table.getTableValues(), "Invalid search result for: 2");
-        search.clearSearchInput();
         checkEmptyTableForSearchInput(table, search, "6");
-        search.clearSearchInput();
         checkEmptyTableForSearchInput(table, search, "Postimex");
+        checkEmptyTableForSearchInput(table, search, "office@alabaster.com");
+        checkEmptyTableForSearchInput(table, search, "Carthage");
         search.clearSearchInput();
 
         search.changeColumnSelection("Email");
         assertEquals("Email", search.getColumnSelectCurrentValue(), "Column select should equals: Email.");
         search.sendToSearchInput("bond.ir");
         assertIterableEquals(expectedRow3Values, table.getTableValues(), "Invalid search result for: bond.ir");
-        search.clearSearchInput();
         checkEmptyTableForSearchInput(table, search, "bondir");
-        search.clearSearchInput();
         checkEmptyTableForSearchInput(table, search, "Carthage");
+        checkEmptyTableForSearchInput(table, search, "2");
         search.clearSearchInput();
 
         search.changeColumnSelection("City");
         assertEquals("City", search.getColumnSelectCurrentValue(), "Column select should equals: City.");
         search.sendToSearchInput("Melbourne");
         assertIterableEquals(expectedRow1Values, table.getTableValues(), "Invalid search result for: Melbourne");
-        search.clearSearchInput();
         checkEmptyTableForSearchInput(table, search, "office@alabaster.com");
-        search.clearSearchInput();
         checkEmptyTableForSearchInput(table, search, "Postimex");
+        checkEmptyTableForSearchInput(table, search, "2");
 
         search.clickClearButton();
         assertEquals("City", search.getColumnSelectCurrentValue(), "Column select should not change after clear filter click.");
